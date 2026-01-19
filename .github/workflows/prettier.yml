@@ -1,0 +1,37 @@
+name: Prettier
+on:
+  push:
+    branches: [main]
+jobs: 
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - name: Check that there are more than 3 commits
+        id: check
+        run: |
+          if [ $(git rev-list --count ${{ github.event.after }} ) -gt 3 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT            
+            exit 0
+          else
+            echo "success=false" >> $GITHUB_OUTPUT                        
+            exit 0
+          fi
+      - name: Prettify Doc
+        uses: creyD/prettier_action@v4.3
+        if: ${{ steps.check.outputs.success == 'false' }}
+        continue-on-error: true
+        with:
+          # This part is also where you can pass other options, for example:
+          prettier_options: --write **/*.md
+          commit_message: "Nettoye la Doc avec Prettier"
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.3
+        if: ${{ steps.check.outputs.success == 'true' }}
+        with:
+          # This part is also where you can pass other options, for example:
+          prettier_options: --write **/*.{css,html}
+          commit_message: "Nettoye le code avec Prettier"
+          

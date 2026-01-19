@@ -1,0 +1,22 @@
+name: Multiple Commits
+on:
+  push:
+    branches: [main]
+jobs:
+  #if at least one commit modify the file main.css
+  #then the job will be executed
+  check-multi-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - name: Check that there are more than 3 commits
+        run: |
+          if [ $(git rev-list --count ${{ github.event.after }} ) -gt 3 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT            
+            exit 0
+          else
+            echo "success=false" >> $GITHUB_OUTPUT                        
+            exit 1
+          fi

@@ -1,0 +1,23 @@
+name: Modification
+on:
+  push:
+    branches: [main]
+jobs:
+  #if at least one commit modify the file main.css
+  #then the job will be executed
+  check-modification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - name: Search for modification
+        id: modification
+        run: |
+          if git diff --name-status $(git log --grep="Initial commit" | grep "^commit" | sed "s/commit //") ${{ github.event.after }}  | grep -e "^M\s.*"; then
+            echo "success=true" >> $GITHUB_OUTPUT     
+            exit 0         
+          else
+            echo "success=false" >> $GITHUB_OUTPUT                        
+            exit 1
+          fi
